@@ -86,30 +86,63 @@
     false))
 
 (defn rows [board]
-  nil)
+  (reduce #(conj %1 (set %2)) [] board))
 
 (defn valid-rows? [board]
-  nil)
+  (= (first (distinct (rows board))) all-values))
 
 (defn cols [board]
-  nil)
+  (reduce #(conj %1 (col-values board [0 %2])) [] (range 0 9)))
 
 (defn valid-cols? [board]
-  nil)
+  (= (first (distinct (cols board))) all-values))
 
 (defn blocks [board]
-  nil)
+  (into [] (flatten
+            (reduce
+             #(conj %1
+                    (for [i [0 3 6]]
+                      (block-values board [%2 i]))) [] [0 3 6]))))
 
 (defn valid-blocks? [board]
-  nil)
+  (= (first (distinct (rows board))) all-values))
+
 
 (defn valid-solution? [board]
-  nil)
+  (and (valid-rows? board) (valid-cols? board) (valid-blocks? board)))
+
+(def before-change
+  (board [[5 3 0 0 7 0 0 0 0]
+          [6 0 0 1 9 5 0 0 0]
+          [0 9 8 0 0 0 0 6 0]
+          [8 0 0 0 6 0 0 0 3]
+          [4 0 0 8 0 3 0 0 1]
+          [7 0 0 0 2 0 0 0 6]
+          [0 6 0 0 0 0 2 8 0]
+          [0 0 0 4 1 9 0 0 5]
+          [0 0 0 0 8 0 0 7 9]]))
+
+(def after-change
+  (board [[5 3 0 0 7 0 0 0 0]
+          [6 0 0 1 9 5 0 0 0]
+          [0 4 8 0 0 0 0 6 0]
+          [8 0 0 0 6 0 0 0 3]
+          [4 0 0 8 0 3 0 0 1]
+          [7 0 0 0 2 0 0 0 6]
+          [0 6 0 0 0 0 2 8 0]
+          [0 0 0 4 1 9 0 0 5]
+          [0 0 0 0 8 0 0 7 9]]))
+
 
 (defn set-value-at [board coord new-value]
-  nil)
+  (let [[row col] coord]
+    (assoc-in board coord new-value)))
+
+(defn find-empty-point-helper [board]
+  (for []
 
 (defn find-empty-point [board]
+
   nil)
 
 (defn solve [board]
