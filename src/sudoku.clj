@@ -5,28 +5,6 @@
 
 (def all-values #{1 2 3 4 5 6 7 8 9})
 
-(def sudoku-board
-  (board [[5 3 0 0 7 0 0 0 0]
-          [6 0 0 1 9 5 0 0 0]
-          [0 9 8 0 0 0 0 6 0]
-          [8 0 0 0 6 0 0 0 3]
-          [4 0 0 8 0 3 0 0 1]
-          [7 0 0 0 2 0 0 0 6]
-          [0 6 0 0 0 0 2 8 0]
-          [0 0 0 4 1 9 0 0 5]
-          [0 0 0 0 8 0 0 7 9]]))
-
-(def solved-board
-  (board [[5 3 4 6 7 8 9 1 2]
-          [6 7 2 1 9 5 3 4 8]
-          [1 9 8 3 4 2 5 6 7]
-          [8 5 9 7 6 1 4 2 3]
-          [4 2 6 8 5 3 7 9 1]
-          [7 1 3 9 2 4 8 5 6]
-          [9 6 1 5 3 7 2 8 4]
-          [2 8 7 4 1 9 6 3 5]
-          [3 4 5 2 8 6 1 7 9]]))
-
 (defn value-at [board coord]
   (get-in board coord))
 
@@ -111,39 +89,34 @@
 (defn valid-solution? [board]
   (and (valid-rows? board) (valid-cols? board) (valid-blocks? board)))
 
-(def before-change
-  (board [[5 3 0 0 7 0 0 0 0]
-          [6 0 0 1 9 5 0 0 0]
-          [0 9 8 0 0 0 0 6 0]
-          [8 0 0 0 6 0 0 0 3]
-          [4 0 0 8 0 3 0 0 1]
-          [7 0 0 0 2 0 0 0 6]
-          [0 6 0 0 0 0 2 8 0]
-          [0 0 0 4 1 9 0 0 5]
-          [0 0 0 0 8 0 0 7 9]]))
-
-(def after-change
-  (board [[5 3 0 0 7 0 0 0 0]
-          [6 0 0 1 9 5 0 0 0]
-          [0 4 8 0 0 0 0 6 0]
-          [8 0 0 0 6 0 0 0 3]
-          [4 0 0 8 0 3 0 0 1]
-          [7 0 0 0 2 0 0 0 6]
-          [0 6 0 0 0 0 2 8 0]
-          [0 0 0 4 1 9 0 0 5]
-          [0 0 0 0 8 0 0 7 9]]))
-
 
 (defn set-value-at [board coord new-value]
   (let [[row col] coord]
     (assoc-in board coord new-value)))
 
-(defn find-empty-point-helper [board]
-  (for []
+(defn find-empty-point-from-row [row]
+  (loop [column-idx 0]
+    (cond
+     (= column-idx (count row)) (- 1)
+     (zero? (get row column-idx)) column-idx
+     :else (recur (inc column-idx)))))
 
 (defn find-empty-point [board]
+  (loop [row-idx 0
+         col-idx (find-empty-point-from-row (get board 0))]
+    (cond
+     (pos? col-idx) [row-idx col-idx]
+     (= row-idx (count board)) []
+     :else (recur (inc row-idx) (find-empty-point-from-row (get board (inc row-idx)))))))
 
-  nil)
+(defn solve-helper [board]
+  (let [empty-coord (find-empty-point board)]
+    (cond
+     (valid-solution? board) [board]
+     (empty? empty-coord) []
+     :else (solve-helper (first (map #(solve-helper (set-value-at board empty-coord %)) (valid-values-for board empty-coord)))))))
+
 
 (defn solve [board]
-  nil)
+  (solve-helper board))
+
