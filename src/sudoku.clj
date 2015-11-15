@@ -23,16 +23,14 @@
        (get r col)))))
 
 (defn coord-pairs [coords]
-  (for [row coords]
-    (for [col coords]
-      [row col])))
-
-(coord-pairs [6 7])
+  (into [] (for [row coords
+        col coords]
+    [row col])))
 
 (defn coords-block [row col]
   (let [from-left (mod col 3)
         from-top (mod row 3)]
-    [(- col from-left) (- row from-top)]))
+    [(- row from-top) (- col from-left)]))
 
 (defn block-values [board coord]
   (let [[row col] coord
@@ -73,14 +71,14 @@
   (reduce #(conj %1 (col-values board [0 %2])) [] (range 0 9)))
 
 (defn valid-cols? [board]
-  (= (first (distinct (cols board))) all-values))
+  (apply = (conj (distinct (cols board)) all-values)))
+
 
 (defn blocks [board]
-  (into [] (flatten
-            (reduce
-             #(conj %1
-                    (for [i [0 3 6]]
-                      (block-values board [%2 i]))) [] [0 3 6]))))
+  (into [] (for [col [0 3 6]
+        row [0 3 6]]
+    (block-values board [row col]))))
+
 
 (defn valid-blocks? [board]
   (= (first (distinct (rows board))) all-values))
@@ -105,14 +103,14 @@
   (loop [row-idx 0
          col-idx (find-empty-point-from-row (get board 0))]
     (cond
-     (pos? col-idx) [row-idx col-idx]
+     (not (neg? col-idx)) [row-idx col-idx]
      (= row-idx (count board)) []
      :else (recur (inc row-idx) (find-empty-point-from-row (get board (inc row-idx)))))))
 
 (defn solve-helper [board]
   (let [empty-coord (find-empty-point board)]
     (cond
-     (valid-solution? board) [board]
+     (valid-solution? board) board
      (empty? empty-coord) []
      :else (solve-helper (first (map #(solve-helper (set-value-at board empty-coord %)) (valid-values-for board empty-coord)))))))
 
