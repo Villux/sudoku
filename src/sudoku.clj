@@ -110,11 +110,10 @@
 (defn solve-helper [board]
   (let [empty-coord (find-empty-point board)]
     (cond
-     (valid-solution? board) board
-     (empty? empty-coord) []
-     :else (solve-helper (first (map #(solve-helper (set-value-at board empty-coord %)) (valid-values-for board empty-coord)))))))
-
+     (filled? board) board
+     :else (flatten (map #(solve-helper (set-value-at board empty-coord %))
+                         (valid-values-for board empty-coord))))))
 
 (defn solve [board]
-  (solve-helper board))
+  (partition 9 (solve-helper board)))
 
